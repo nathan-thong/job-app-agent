@@ -1,0 +1,57 @@
+{
+  "name": "Jordan Ellis",
+  "summary": "Backend-leaning full-stack engineer with 4 years of experience building API-driven products, focused on clean service boundaries, cost-aware system design, and shipping things that hold up under real traffic.",
+  "skills": [
+    "Python",
+    "FastAPI",
+    "TypeScript",
+    "React",
+    "PostgreSQL",
+    "Docker",
+    "AWS (Lambda, RDS, S3)",
+    "Pydantic",
+    "pytest",
+    "REST API design"
+  ],
+  "experience": [
+    {
+      "title": "Software Engineer",
+      "organization": "Northlight Analytics",
+      "start_date": "2023-06",
+      "end_date": null,
+      "highlights": [
+        "Redesigned a monolithic reporting service into per-tenant async jobs, cutting p95 report generation time from 40s to 6s",
+        "Introduced typed request/response models across the API layer, eliminating a class of bugs where raw ORM objects leaked internal fields to clients",
+        "Built an internal rate-limiting middleware adopted across three services after a partner integration triggered a cost spike"
+      ]
+    },
+    {
+      "title": "Software Engineer",
+      "organization": "Fetch & Co.",
+      "start_date": "2021-08",
+      "end_date": "2023-05",
+      "highlights": [
+        "Built and maintained a Django/PostgreSQL inventory system serving 200+ retail locations",
+        "Migrated a legacy jQuery admin dashboard to React, reducing page load time by 60%",
+        "Wrote the team's first integration test suite, catching a data-migration bug before it reached production"
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "job-app-agent",
+      "description": "A 4-stage LLM pipeline (extraction, gap analysis, draft, critique) that tailors a job application to a posting, with a stateless FastAPI backend and a React frontend that owns pipeline orchestration.",
+      "technologies": ["Python", "FastAPI", "React", "Pydantic", "Claude API"],
+      "link": null
+    },
+    {
+      "name": "shelfwatch",
+      "description": "A small side project that scrapes public library catalog APIs and sends a notification when a requested book becomes available, built to avoid manually refreshing hold queues.",
+      "technologies": ["Python", "SQLite", "APScheduler"],
+      "link": null
+    }
+  ],
+  "education": [
+    "B.S. Computer Science, University of Washington, 2021"
+  ]
+}
