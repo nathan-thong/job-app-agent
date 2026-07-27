@@ -8,6 +8,8 @@ Scaffolding only: FastAPI backend with a `/health` endpoint, Vite React + TypeSc
 
 ## Architecture
 
+[docs/adr/](docs/adr/) holds the decisions that were hard enough to reverse to be worth writing down, with the alternatives and why they lost. [CONTEXT.md](CONTEXT.md) is the glossary.
+
 Orchestration lives in the frontend, not the backend. The backend exposes one stateless endpoint per stage (`/extract`, `/gap-analysis`, `/draft`, `/critique`); each takes the previous stage's Pydantic-validated output and returns its own. A React state machine (`usePipeline.ts`) calls these in sequence, populating the UI as each stage completes, and owns the capped draft/critique revise loop. This avoids needing SSE/WebSocket streaming to show intermediate results, and matches a mock-first, stage-by-stage build order. The trade-off: pipeline sequencing is coupled to the client, which wouldn't scale to a multi-user backend service — out of scope for v1, and a contained change later (one new endpoint reusing the same stage functions).
 
 ## Cost controls
