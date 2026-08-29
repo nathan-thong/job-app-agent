@@ -16,6 +16,8 @@ The contracts and major decisions for all four stages, provenance, Critique gati
 
 Agents and contributors should read [AGENTS.md](AGENTS.md), [CONTEXT.md](CONTEXT.md), and the relevant files in [docs/adr/](docs/adr/) before editing.
 
+See [docs/architecture.md](docs/architecture.md) for the implemented system boundaries and Pipeline Run behavior.
+
 ## Architecture
 
 The backend exposes one stateless endpoint per stage: `/extract`, `/gap-analysis`, `/draft`, and `/critique`. Each consumes validated prior-stage output and returns an explicit Pydantic response model. The React frontend owns sequencing, progressive display, and the capped Draft/Critique revision loop.
@@ -100,5 +102,3 @@ Normal tests must remain deterministic, offline, and usable without an API key. 
 ## Scope
 
 The first release uses the committed fictional Profile and runs locally without authentication. Its exit condition is a verified local mock pipeline plus one explicitly authorized live run. Resume-to-Profile upload and actual public hosting remain future work, though the application keeps safe deployment defaults.
-
-Write a public `docs/architecture.md` after the Extraction frontend exists, when it can describe implemented behavior rather than predictions.
