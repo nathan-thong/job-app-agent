@@ -8,3 +8,5 @@ venv/
 node_modules/
 dist/
 .pytest_cache/
+AGENTS.md
+PLAN.md
