@@ -14,7 +14,14 @@ function App() {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [configError, setConfigError] = useState<ApiError | null>(null);
   const [posting, setPosting] = useState("");
+  const [editedLetter, setEditedLetter] = useState<string | null>(null);
+  const [editingLetter, setEditingLetter] = useState(false);
   const pipeline = usePipeline();
+
+  useEffect(() => {
+    setEditedLetter(null);
+    setEditingLetter(false);
+  }, [pipeline.draft]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -59,6 +66,7 @@ function App() {
 
   const isBusy = ["extracting", "analyzing", "drafting", "critiquing", "revising"].includes(pipeline.state);
   const canRun = posting.length >= 50 && posting.length <= 8000 && !isBusy;
+  const canEditLetter = pipeline.state === "passed" || pipeline.state === "capped";
   const extractionStageState =
     pipeline.state === "extracting"
       ? "active"
@@ -202,7 +210,18 @@ function App() {
                 </div>
                 {pipeline.revisionCount > 0 ? <span className="count-pill">Revision {pipeline.revisionCount} / 2</span> : null}
               </div>
-              <CoverLetterView letter={pipeline.draft} />
+              <CoverLetterView
+                letter={pipeline.draft}
+                editedText={editedLetter}
+                editing={editingLetter}
+                canEdit={canEditLetter}
+                onEdit={setEditedLetter}
+                onEditingChange={setEditingLetter}
+                onReset={() => {
+                  setEditedLetter(null);
+                  setEditingLetter(false);
+                }}
+              />
             </div>
           ) : null}
           {pipeline.critique ? (

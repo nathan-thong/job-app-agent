@@ -522,11 +522,35 @@ textarea[readonly] {
   color: var(--ink);
 }
 
+.letter-editor {
+  min-height: 430px;
+  background: #faf9f4;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
 .letter-salutation,
 .letter-signoff {
   font-family: Georgia, "Times New Roman", serif;
   font-size: 0.98rem;
   line-height: 1.55;
+}
+
+.letter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.edit-warning {
+  margin: 12px 0 0;
+  color: var(--orange);
+  font-size: 0.76rem;
+  line-height: 1.5;
 }
 
 .letter-salutation {
