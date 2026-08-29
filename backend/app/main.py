@@ -10,9 +10,15 @@ from app.agents.extraction import (
     extract,
     validate_mock_fixture,
 )
+from app.agents.gap_analysis import (
+    GapAnalysisError,
+    analyze as analyze_gap,
+    validate_mock_fixture as validate_gap_fixture,
+)
 from app.config import settings
 from app.models.config import ConfigResponse, HealthResponse
 from app.models.extraction import ExtractionRequest, ExtractionResponse
+from app.models.gap_analysis import GapAnalysisRequest, GapAnalysisResponse
 from app.profile import load_profile
 from app.rate_limit import SharedRateLimiter, enforce_rate_limit
 
@@ -23,6 +29,8 @@ app.state.sample_posting = None
 if settings.mock_mode:
     validate_mock_fixture()
     app.state.sample_posting = _read_sample_posting()
+    extraction = extract(ExtractionRequest(posting=app.state.sample_posting))
+    validate_gap_fixture(app.state.profile, GapAnalysisRequest(extraction=extraction))
 app.state.rate_limiter = SharedRateLimiter(settings.rate_limit)
 
 app.add_middleware(
@@ -66,3 +74,17 @@ def extraction(extraction_request: ExtractionRequest, request: Request) -> Extra
         return extract(extraction_request, request_id=request.state.request_id)
     except ExtractionError as exc:
         raise HTTPException(status_code=502, detail="Extraction could not be completed.") from exc
+
+
+@app.post(
+    "/gap-analysis",
+    response_model=GapAnalysisResponse,
+    dependencies=[Depends(enforce_rate_limit)],
+)
+def gap_analysis(
+    gap_request: GapAnalysisRequest, request: Request
+) -> GapAnalysisResponse:
+    try:
+        return analyze_gap(gap_request, app.state.profile, request_id=request.state.request_id)
+    except GapAnalysisError as exc:
+        raise HTTPException(status_code=502, detail="Gap Analysis could not be completed.") from exc

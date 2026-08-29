@@ -1,0 +1,92 @@
+{
+  "assessments": [
+    {
+      "requirement": {
+        "text": "3–5 years of experience building production APIs with Python",
+        "necessity": "required"
+      },
+      "outcome": "match",
+      "reason": "The Profile directly describes four years of experience building API-driven products.",
+      "evidence": [
+        {
+          "text": "Backend-leaning full-stack engineer with 4 years of experience building API-driven products, focused on clean service boundaries, cost-aware system design, and shipping things that hold up under real traffic.",
+          "source": "summary"
+        }
+      ]
+    },
+    {
+      "requirement": {
+        "text": "Strong written and verbal communication skills",
+        "necessity": "required"
+      },
+      "outcome": "gap",
+      "reason": "The Profile does not provide useful direct evidence for this communication requirement.",
+      "evidence": []
+    },
+    {
+      "requirement": {
+        "text": "Experience with AWS (Lambda, RDS, S3)",
+        "necessity": "required"
+      },
+      "outcome": "match",
+      "reason": "The Profile lists the requested AWS services directly.",
+      "evidence": [
+        {
+          "text": "AWS (Lambda, RDS, S3)",
+          "source": "skills"
+        }
+      ]
+    },
+    {
+      "requirement": {
+        "text": "Experience with e-commerce platforms.",
+        "necessity": "required"
+      },
+      "outcome": "adjacent",
+      "reason": "Retail inventory systems are transferable platform experience but do not establish e-commerce experience directly.",
+      "evidence": [
+        {
+          "text": "Built and maintained a Django/PostgreSQL inventory system serving 200+ retail locations",
+          "source": "experience"
+        }
+      ]
+    },
+    {
+      "requirement": {
+        "text": "Familiarity with Kubernetes",
+        "necessity": "preferred"
+      },
+      "outcome": "adjacent",
+      "reason": "Docker experience is relevant container tooling but is not Kubernetes familiarity.",
+      "evidence": [
+        {
+          "text": "Docker",
+          "source": "skills"
+        }
+      ]
+    },
+    {
+      "requirement": {
+        "text": "Experience designing GraphQL APIs",
+        "necessity": "preferred"
+      },
+      "outcome": "adjacent",
+      "reason": "REST API design is transferable API design experience but does not establish GraphQL experience.",
+      "evidence": [
+        {
+          "text": "REST API design",
+          "source": "skills"
+        }
+      ]
+    },
+    {
+      "requirement": {
+        "text": "A thoughtful, customer-focused approach to solving problems",
+        "necessity": "unstated"
+      },
+      "outcome": "gap",
+      "reason": "The Profile does not provide useful evidence for this stated approach.",
+      "evidence": []
+    }
+  ]
+}
