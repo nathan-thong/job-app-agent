@@ -1,0 +1,70 @@
+{
+  "paragraphs": [
+    {
+      "prose": "I am excited to apply for the Senior Backend Engineer role at Harbor & Pine. With four years of experience building API-driven products, I bring a backend-leaning approach focused on clean service boundaries, practical system design, and dependable delivery.",
+      "requirements": [
+        {
+          "text": "3–5 years of experience building production APIs with Python",
+          "necessity": "required"
+        }
+      ],
+      "evidence": [
+        {
+          "text": "Backend-leaning full-stack engineer with 4 years of experience building API-driven products, focused on clean service boundaries, cost-aware system design, and shipping things that hold up under real traffic.",
+          "source": "summary"
+        }
+      ]
+    },
+    {
+      "prose": "In my current Software Engineer role at Northlight Analytics, I redesigned a monolithic reporting service into per-tenant async jobs, reducing p95 report generation time from 40 seconds to 6 seconds. I also introduced typed request/response models across the API layer and built rate-limiting middleware after a partner integration caused a cost spike.",
+      "requirements": [
+        {
+          "text": "Experience with AWS (Lambda, RDS, S3)",
+          "necessity": "required"
+        }
+      ],
+      "evidence": [
+        {
+          "text": "AWS (Lambda, RDS, S3)",
+          "source": "skills"
+        }
+      ]
+    },
+    {
+      "prose": "I would also bring relevant experience for Harbor & Pine’s retail customers. I built and maintained a Django/PostgreSQL inventory system serving more than 200 retail locations, and migrated a legacy jQuery dashboard to React. That background gives me a useful perspective on dependable tools for retail teams, while my Docker and REST API design experience would transfer well to the role’s platform work.",
+      "requirements": [
+        {
+          "text": "Experience with e-commerce platforms.",
+          "necessity": "required"
+        },
+        {
+          "text": "Familiarity with Kubernetes",
+          "necessity": "preferred"
+        },
+        {
+          "text": "Experience designing GraphQL APIs",
+          "necessity": "preferred"
+        }
+      ],
+      "evidence": [
+        {
+          "text": "Built and maintained a Django/PostgreSQL inventory system serving 200+ retail locations",
+          "source": "experience"
+        },
+        {
+          "text": "Docker",
+          "source": "skills"
+        },
+        {
+          "text": "REST API design",
+          "source": "skills"
+        }
+      ]
+    },
+    {
+      "prose": "I would welcome the opportunity to discuss how I could contribute to Harbor & Pine’s engineering team. Thank you for your consideration.",
+      "requirements": [],
+      "evidence": []
+    }
+  ]
+}

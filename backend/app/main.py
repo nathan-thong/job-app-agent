@@ -15,10 +15,12 @@ from app.agents.gap_analysis import (
     analyze as analyze_gap,
     validate_mock_fixture as validate_gap_fixture,
 )
+from app.agents.draft import DraftError, draft as create_draft
 from app.config import settings
 from app.models.config import ConfigResponse, HealthResponse
 from app.models.extraction import ExtractionRequest, ExtractionResponse
 from app.models.gap_analysis import GapAnalysisRequest, GapAnalysisResponse
+from app.models.draft import DraftRequest, DraftResponse
 from app.profile import load_profile
 from app.rate_limit import SharedRateLimiter, enforce_rate_limit
 
@@ -88,3 +90,15 @@ def gap_analysis(
         return analyze_gap(gap_request, app.state.profile, request_id=request.state.request_id)
     except GapAnalysisError as exc:
         raise HTTPException(status_code=502, detail="Gap Analysis could not be completed.") from exc
+
+
+@app.post(
+    "/draft",
+    response_model=DraftResponse,
+    dependencies=[Depends(enforce_rate_limit)],
+)
+def draft(draft_request: DraftRequest, request: Request) -> DraftResponse:
+    try:
+        return create_draft(draft_request, app.state.profile, request_id=request.state.request_id)
+    except DraftError as exc:
+        raise HTTPException(status_code=502, detail="Draft could not be completed.") from exc
