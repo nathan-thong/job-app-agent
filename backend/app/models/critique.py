@@ -28,3 +28,29 @@ class CritiqueFinding(BaseModel):
     severity: FindingSeverity
     paragraph_number: int | None = Field(default=None, ge=1)
     message: str = Field(min_length=1)
+
+
+class SemanticFinding(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: FindingCode
+    paragraph_number: int | None = None
+    message: str = Field(min_length=1)
+
+
+class CritiqueToolOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    findings: list[SemanticFinding] = Field(default_factory=list)
+
+
+class CritiqueVerdict(str, Enum):
+    PASS = "pass"
+    REVISE = "revise"
+
+
+class CritiqueResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    findings: list[CritiqueFinding] = Field(default_factory=list)
+    verdict: CritiqueVerdict

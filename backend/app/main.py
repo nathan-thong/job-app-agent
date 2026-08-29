@@ -16,11 +16,14 @@ from app.agents.gap_analysis import (
     validate_mock_fixture as validate_gap_fixture,
 )
 from app.agents.draft import DraftError, draft as create_draft
+from app.agents.critique import CritiqueError, critique as run_critique
 from app.config import settings
 from app.models.config import ConfigResponse, HealthResponse
 from app.models.extraction import ExtractionRequest, ExtractionResponse
 from app.models.gap_analysis import GapAnalysisRequest, GapAnalysisResponse
 from app.models.draft import DraftRequest, DraftResponse
+from app.models.critique import CritiqueResponse
+from app.models.critique_request import CritiqueRequest
 from app.profile import load_profile
 from app.rate_limit import SharedRateLimiter, enforce_rate_limit
 
@@ -102,3 +105,15 @@ def draft(draft_request: DraftRequest, request: Request) -> DraftResponse:
         return create_draft(draft_request, app.state.profile, request_id=request.state.request_id)
     except DraftError as exc:
         raise HTTPException(status_code=502, detail="Draft could not be completed.") from exc
+
+
+@app.post(
+    "/critique",
+    response_model=CritiqueResponse,
+    dependencies=[Depends(enforce_rate_limit)],
+)
+def critique(critique_request: CritiqueRequest, request: Request) -> CritiqueResponse:
+    try:
+        return run_critique(critique_request, request_id=request.state.request_id)
+    except CritiqueError as exc:
+        raise HTTPException(status_code=502, detail="Critique could not be completed.") from exc
