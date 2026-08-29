@@ -20,9 +20,11 @@ class StructuredToolClient:
         *,
         api_key: str,
         model_name: str,
+        timeout_seconds: float = 30.0,
         client: anthropic.Anthropic | None = None,
     ) -> None:
         self.model_name = model_name
+        self.timeout_seconds = timeout_seconds
         self._client = client or anthropic.Anthropic(api_key=api_key)
 
     def call(
@@ -45,6 +47,7 @@ class StructuredToolClient:
                 response = self._client.messages.create(
                     model=self.model_name,
                     max_tokens=max_tokens,
+                    timeout=self.timeout_seconds,
                     system=system_prompt,
                     messages=[{"role": "user", "content": user_prompt}],
                     tools=[tool],

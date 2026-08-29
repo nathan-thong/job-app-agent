@@ -50,6 +50,7 @@ Mock mode uses a canonical backend-owned sample posting with fixture spans drawn
 - Job Posting input is bounded to 50–8,000 characters before model work.
 - Extraction is capped at 2,048 output tokens.
 - The generic model client retries malformed output once, then returns a sanitized failure.
+- Live provider calls have a configurable 30-second timeout, bounded to 120 seconds.
 - LLM endpoints share a configurable per-IP request budget, defaulting to `40/hour`; `/health` and `/config` remain unlimited.
 - Job Posting text is treated as untrusted data, escaped, and placed inside explicit prompt delimiters.
 - Every endpoint returns a typed response model rather than raw provider or internal objects.

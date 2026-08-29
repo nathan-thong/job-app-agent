@@ -51,6 +51,7 @@ def test_structured_client_uses_provider_schema_and_parser():
     call = provider.messages.calls[0]
     assert call["model"] == "test-model"
     assert call["max_tokens"] == 128
+    assert call["timeout"] == 30.0
     assert call["tools"][0]["input_schema"] == Output.model_json_schema()
     assert call["tool_choice"] == {"type": "tool", "name": "structured_output"}
 

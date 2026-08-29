@@ -1,6 +1,8 @@
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
+from app.config import Settings
 from app.main import app
 
 
@@ -26,3 +28,12 @@ def test_llm_routes_share_configurable_limit_but_config_stays_unlimited(three_re
 def test_invalid_rate_format_is_rejected():
     with pytest.raises(ValueError, match="RATE_LIMIT"):
         app.state.rate_limiter.update_rate("3/day")
+
+
+def test_llm_timeout_is_positive_and_bounded():
+    assert Settings(llm_timeout_seconds=45).llm_timeout_seconds == 45
+
+    with pytest.raises(ValidationError):
+        Settings(llm_timeout_seconds=0)
+    with pytest.raises(ValidationError):
+        Settings(llm_timeout_seconds=121)

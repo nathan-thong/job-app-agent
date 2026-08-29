@@ -166,7 +166,11 @@ def _provider_output(request: DraftRequest, profile: Profile, request_id: str) -
         raise DraftError("Live mode requires an Anthropic API key.")
 
     system_prompt, user_prompt = _prompts(request, profile)
-    client = StructuredToolClient(api_key=settings.anthropic_api_key, model_name=settings.model_name)
+    client = StructuredToolClient(
+        api_key=settings.anthropic_api_key,
+        model_name=settings.model_name,
+        timeout_seconds=settings.llm_timeout_seconds,
+    )
     try:
         return client.call(
             system_prompt=system_prompt,

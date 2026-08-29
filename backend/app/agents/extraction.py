@@ -189,6 +189,7 @@ def _provider_output(posting: str, request_id: str) -> ExtractionToolOutput:
     client = StructuredToolClient(
         api_key=settings.anthropic_api_key,
         model_name=settings.model_name,
+        timeout_seconds=settings.llm_timeout_seconds,
     )
     try:
         return client.call(
