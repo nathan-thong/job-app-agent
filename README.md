@@ -10,7 +10,7 @@ V1 produces one tailored Cover Letter targeting 250–350 words in three or four
 
 ## Status
 
-The backend scaffold and pure Extraction slice are complete. FastAPI exposes `/health`, typed `/config`, and mock/live `/extract` routes; the React/TypeScript frontend still confirms only the original health round trip. `backend/data/profile.json` contains a realistic fictional candidate named Jordan Ellis.
+The backend scaffold and first Extraction slice are complete. FastAPI exposes `/health`, typed `/config`, and mock/live `/extract` routes; the React/TypeScript frontend now provides a config-gated, source-checked Extraction experience. `backend/data/profile.json` contains a realistic fictional candidate named Jordan Ellis.
 
 The contracts and major decisions for all four stages, provenance, Critique gating, and frontend orchestration are documented. Extraction 3b and 3c are implemented; the next step is the Extraction frontend slice described as 3d in [PLAN.md](PLAN.md).
 
