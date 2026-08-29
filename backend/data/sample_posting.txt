@@ -1,0 +1,24 @@
+Harbor & Pine is hiring a Senior Backend Engineer to help us build dependable tools
+for independent retailers.
+
+About the role
+
+You will build production Python services with FastAPI and design clear REST API
+boundaries. You will work with PostgreSQL and deploy containerized workloads on
+AWS (Lambda, RDS, S3).
+
+Requirements
+
+• 3–5 years of experience building production APIs with Python
+◦ Strong written and verbal communication skills
+▪ Experience with AWS (Lambda, RDS, S3)
+- Experience with e-
+  commerce platforms.
+
+Preferred
+
+* Familiarity with Kubernetes
+• Experience designing GraphQL APIs
+• A thoughtful, customer-focused approach to solving problems
+
+We value people who explain trade-offs clearly and leave systems easier to operate.
