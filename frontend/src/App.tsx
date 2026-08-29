@@ -18,6 +18,13 @@ function App() {
   const [editingLetter, setEditingLetter] = useState(false);
   const pipeline = usePipeline();
 
+  const handlePostingChange = (value: string) => {
+    if (value !== posting && pipeline.state !== "idle") {
+      pipeline.reset();
+    }
+    setPosting(value);
+  };
+
   useEffect(() => {
     setEditedLetter(null);
     setEditingLetter(false);
@@ -132,7 +139,7 @@ function App() {
           <PipelineStage number="01" title="Extraction" state={extractionStageState}>
             <p className="stage-description">Identify the role, company, and Requirements exactly as they appear in the Job Posting.</p>
             {config.mock_mode ? <div className="demo-note">Mock mode · the canonical sample is prefilled and read-only.</div> : null}
-            <JobPostingInput value={posting} readOnly={config.mock_mode} onChange={setPosting} />
+            <JobPostingInput value={posting} readOnly={config.mock_mode} onChange={handlePostingChange} />
             <div className="action-row">
               <button className="button button--primary" disabled={!canRun} onClick={() => pipeline.run(posting)}>
                 {pipeline.state === "analyzing"
@@ -151,9 +158,15 @@ function App() {
                   Cancel
                 </button>
               ) : null}
+              {pipeline.state === "error" ? (
+                <button className="button button--secondary" onClick={() => void pipeline.retry()}>
+                  Retry {pipeline.errorStage ?? "stage"}
+                </button>
+              ) : null}
             </div>
             {posting.length > 0 && posting.length < 50 ? <p className="validation-copy">Add at least {50 - posting.length} more characters to run Extraction.</p> : null}
             {pipeline.state === "cancelled" ? <p className="cancelled-copy">Pipeline cancelled. Completed stages are preserved and no later stages were scheduled.</p> : null}
+            {pipeline.state === "error" ? <p className="field-note">Retry resumes at the failed stage and keeps completed stage results.</p> : null}
             {pipeline.error ? <p className="error-copy">{pipeline.error.message}</p> : null}
           </PipelineStage>
 

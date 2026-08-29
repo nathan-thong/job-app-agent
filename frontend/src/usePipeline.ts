@@ -34,8 +34,17 @@ type PipelineResult = {
   error: ApiError | null;
   errorStage: PipelineErrorStage;
   run: (posting: string) => Promise<void>;
+  retry: () => Promise<void>;
   cancel: () => void;
   reset: () => void;
+};
+
+type PreservedPipeline = {
+  extraction: ExtractionResponse | null;
+  gapAnalysis: GapAnalysisResponse | null;
+  draft: DraftResponse | null;
+  critique: CritiqueResponse | null;
+  revisionCount: number;
 };
 
 export function usePipeline(): PipelineResult {
@@ -48,6 +57,7 @@ export function usePipeline(): PipelineResult {
   const [revisionCount, setRevisionCount] = useState(0);
   const [error, setError] = useState<ApiError | null>(null);
   const [errorStage, setErrorStage] = useState<PipelineErrorStage>(null);
+  const postingRef = useRef("");
 
   const cancel = useCallback(() => {
     controllerRef.current?.abort();
@@ -63,38 +73,60 @@ export function usePipeline(): PipelineResult {
     );
   }, []);
 
-  const run = useCallback(async (posting: string) => {
+  const execute = useCallback(async (posting: string, startStage: Exclude<PipelineErrorStage, null>, preserved: PreservedPipeline) => {
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
-    let failedStage: Exclude<PipelineErrorStage, null> = "extraction";
-    let currentRevisionCount = 0;
+    let failedStage = startStage;
+    let currentRevisionCount = preserved.revisionCount;
+    let extraction = preserved.extraction;
+    let analysis = preserved.gapAnalysis;
+    let letter = preserved.draft;
 
-    setState("extracting");
-    setExtractionResult(null);
-    setGapResult(null);
-    setDraftResult(null);
-    setCritiqueResult(null);
-    setRevisionCount(0);
     setError(null);
     setErrorStage(null);
 
     try {
-      const extraction = await extract({ posting }, controller.signal);
-      if (controller.signal.aborted) return;
-      setExtractionResult(extraction);
+      if (startStage === "extraction") {
+        setState("extracting");
+        failedStage = "extraction";
+        extraction = await extract({ posting }, controller.signal);
+        if (controller.signal.aborted) return;
+        setExtractionResult(extraction);
+      }
 
-      failedStage = "gap-analysis";
-      setState("analyzing");
-      const analysis = await gapAnalysis({ extraction }, controller.signal);
-      if (controller.signal.aborted) return;
-      setGapResult(analysis);
+      if (startStage === "extraction" || startStage === "gap-analysis") {
+        if (!extraction) throw new Error("Extraction output is unavailable.");
+        failedStage = "gap-analysis";
+        setState("analyzing");
+        analysis = await gapAnalysis({ extraction }, controller.signal);
+        if (controller.signal.aborted) return;
+        setGapResult(analysis);
+      }
 
-      failedStage = "draft";
-      setState("drafting");
-      let letter = await draft({ extraction, gap_analysis: analysis }, controller.signal);
-      if (controller.signal.aborted) return;
-      setDraftResult(letter);
+      if (startStage === "extraction" || startStage === "gap-analysis" || startStage === "draft") {
+        if (!extraction || !analysis) throw new Error("Prior stage output is unavailable.");
+        failedStage = "draft";
+        setState("drafting");
+        const revisionFindings = startStage === "draft" && preserved.critique?.verdict === "revise"
+          ? preserved.critique.findings
+          : undefined;
+        letter = await draft(
+          revisionFindings
+            ? {
+                extraction,
+                gap_analysis: analysis,
+                previous_cover_letter: letter ?? undefined,
+                findings: revisionFindings,
+              }
+            : { extraction, gap_analysis: analysis },
+          controller.signal,
+        );
+        if (controller.signal.aborted) return;
+        setDraftResult(letter);
+      }
+
+      if (!extraction || !analysis || !letter) throw new Error("Draft context is unavailable.");
 
       while (true) {
         failedStage = "critique";
@@ -151,6 +183,64 @@ export function usePipeline(): PipelineResult {
     }
   }, []);
 
+  const run = useCallback(async (posting: string) => {
+    postingRef.current = posting;
+    setState("idle");
+    setExtractionResult(null);
+    setGapResult(null);
+    setDraftResult(null);
+    setCritiqueResult(null);
+    setRevisionCount(0);
+    await execute(posting, "extraction", {
+      extraction: null,
+      gapAnalysis: null,
+      draft: null,
+      critique: null,
+      revisionCount: 0,
+    });
+  }, [execute]);
+
+  const retry = useCallback(async () => {
+    if (!errorStage || !postingRef.current) return;
+
+    const preserved: PreservedPipeline = {
+      extraction: extractionResult,
+      gapAnalysis: gapResult,
+      draft: draftResult,
+      critique: critiqueResult,
+      revisionCount,
+    };
+    if (errorStage === "extraction") {
+      preserved.extraction = null;
+      preserved.gapAnalysis = null;
+      preserved.draft = null;
+      preserved.critique = null;
+      preserved.revisionCount = 0;
+      setExtractionResult(null);
+      setGapResult(null);
+      setDraftResult(null);
+      setCritiqueResult(null);
+      setRevisionCount(0);
+    } else if (errorStage === "gap-analysis") {
+      preserved.gapAnalysis = null;
+      preserved.draft = null;
+      preserved.critique = null;
+      preserved.revisionCount = 0;
+      setGapResult(null);
+      setDraftResult(null);
+      setCritiqueResult(null);
+      setRevisionCount(0);
+    } else if (errorStage === "draft") {
+      preserved.critique = preserved.critique?.verdict === "revise" ? preserved.critique : null;
+      setCritiqueResult(preserved.critique);
+    } else {
+      preserved.critique = null;
+      setCritiqueResult(null);
+    }
+
+    await execute(postingRef.current, errorStage, preserved);
+  }, [critiqueResult, draftResult, errorStage, execute, extractionResult, gapResult, revisionCount]);
+
   const reset = useCallback(() => {
     cancel();
     setState("idle");
@@ -175,6 +265,7 @@ export function usePipeline(): PipelineResult {
     error,
     errorStage,
     run,
+    retry,
     cancel,
     reset,
   };

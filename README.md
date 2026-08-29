@@ -26,6 +26,8 @@ Users can inspect extracted Requirements, Requirement Assessments, and expandabl
 
 The UI identifies the active candidate as Jordan Ellis, a fictional demo Profile. `/config` supplies the Profile name without exposing the complete Profile.
 
+If a stage fails, the UI preserves completed stage results and offers an explicit retry from the failed stage. Changing a Job Posting clears the current Pipeline Run so a new run starts at Extraction. Cancellation stops future scheduling on a best-effort basis.
+
 Keeping orchestration in the browser avoids a blocking all-in-one endpoint or SSE/WebSocket infrastructure. The trade-off is that sequencing is coupled to the client. That would not suit a multi-user service requiring durable jobs and retries, but moving it server-side later is contained: one orchestration endpoint can reuse the same stage functions and contracts.
 
 Model-provider plumbing stays generic. `llm/client.py` performs structured tool calls and transport-level retry without knowing about stages. Each stage agent owns its prompt, fixture, mock/live selection, source checks, and validated response construction. This keeps mock mode on the same processing path as live output.
@@ -48,7 +50,7 @@ Mock mode uses a canonical backend-owned sample posting with fixture spans drawn
 - Job Posting input is bounded to 50–8,000 characters before model work.
 - Extraction is capped at 2,048 output tokens.
 - The generic model client retries malformed output once, then returns a sanitized failure.
-- LLM endpoints share a configurable per-IP request budget, planned at `40/hour`; `/health` and `/config` remain unlimited.
+- LLM endpoints share a configurable per-IP request budget, defaulting to `40/hour`; `/health` and `/config` remain unlimited.
 - Job Posting text is treated as untrusted data, escaped, and placed inside explicit prompt delimiters.
 - Every endpoint returns a typed response model rather than raw provider or internal objects.
 - Default structured logs contain metadata, counts, and content hashes rather than postings, Profile content, rejected text, or raw provider output. Local content logging requires explicit `LOG_LLM_CONTENT=true`.
@@ -92,7 +94,7 @@ npm run lint --prefix frontend
 npm run build --prefix frontend
 ```
 
-Normal tests must remain deterministic, offline, and usable without an API key. The complete mock browser flow and an opt-in low-cost live run will be added as their stages are implemented.
+Normal tests must remain deterministic, offline, and usable without an API key. The mock API flow has been verified through the first Critique revision and second-pass result. Browser acceptance, cancellation/retry exercise, and an opt-in low-cost live run remain before the v1 exit condition.
 
 ## Scope
 
