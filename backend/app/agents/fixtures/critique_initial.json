@@ -1,0 +1,9 @@
+{
+  "findings": [
+    {
+      "code": "unsupported_claim",
+      "paragraph_number": 1,
+      "message": "The opening claims leadership experience that is not supported by the Profile Evidence."
+    }
+  ]
+}

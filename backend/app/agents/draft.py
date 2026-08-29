@@ -19,6 +19,7 @@ from app.models.profile import Profile
 
 
 DRAFT_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "draft.json"
+DRAFT_REVISION_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "draft_revision.json"
 logger = logging.getLogger(__name__)
 
 
@@ -158,7 +159,8 @@ Task: Draft the grounded Cover Letter now. """
 
 def _provider_output(request: DraftRequest, profile: Profile, request_id: str) -> DraftToolOutput:
     if settings.mock_mode:
-        return _read_fixture()
+        fixture_path = DRAFT_REVISION_FIXTURE_PATH if request.previous_cover_letter else DRAFT_FIXTURE_PATH
+        return _read_fixture(fixture_path)
 
     if not settings.anthropic_api_key:
         raise DraftError("Live mode requires an Anthropic API key.")

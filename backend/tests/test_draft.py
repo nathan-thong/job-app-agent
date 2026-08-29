@@ -2,8 +2,10 @@ import pytest
 from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
+from app.agents.critique import critique
 from app.agents.draft import draft, normalize_draft_output
 from app.models.critique import CritiqueFinding, FindingCode, FindingSeverity
+from app.models.critique_request import CritiqueRequest
 from app.models.draft import (
     DraftParagraphToolOutput,
     DraftRequest,
@@ -166,10 +168,42 @@ def test_mock_draft_returns_complete_grounded_structured_letter():
 
     assert len(response.paragraphs) == 4
     assert response.candidate_name == PROFILE.name
+    assert "I have led platform teams" in response.paragraphs[0].prose
     assert response.dropped_evidence_count == 0
     assert response.dropped_requirement_count == 0
     assert all(paragraph.prose for paragraph in response.paragraphs)
     assert response.paragraphs[2].requirements[-1].text == "Experience designing GraphQL APIs"
+
+
+def test_mock_revision_fixes_one_blocking_finding_and_then_passes():
+    initial_request = full_mock_request()
+    initial_letter = draft(initial_request, PROFILE)
+    initial_critique_request = CritiqueRequest(
+        extraction=initial_request.extraction,
+        gap_analysis=initial_request.gap_analysis,
+        cover_letter=initial_letter,
+    )
+
+    first_critique = critique(initial_critique_request)
+    revision_request = DraftRequest(
+        extraction=initial_request.extraction,
+        gap_analysis=initial_request.gap_analysis,
+        previous_cover_letter=initial_letter,
+        findings=first_critique.findings,
+    )
+    revised_letter = draft(revision_request, PROFILE)
+    second_critique = critique(
+        CritiqueRequest(
+            extraction=initial_request.extraction,
+            gap_analysis=initial_request.gap_analysis,
+            cover_letter=revised_letter,
+        )
+    )
+
+    assert first_critique.verdict.value == "revise"
+    assert any(finding.code is FindingCode.UNSUPPORTED_CLAIM for finding in first_critique.findings)
+    assert "I have led platform teams" not in revised_letter.paragraphs[0].prose
+    assert second_critique.verdict.value == "pass"
 
 
 def test_draft_response_requires_three_to_four_paragraphs():

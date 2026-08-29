@@ -18,6 +18,7 @@ from app.models.critique_request import CritiqueRequest
 
 
 CRITIQUE_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "critique.json"
+CRITIQUE_INITIAL_FIXTURE_PATH = Path(__file__).parent / "fixtures" / "critique_initial.json"
 logger = logging.getLogger(__name__)
 
 BLOCKING_CODES = frozenset(
@@ -167,7 +168,8 @@ Task: Critique the complete Cover Letter and return every relevant semantic Find
 
 def _provider_output(request: CritiqueRequest, request_id: str) -> CritiqueToolOutput:
     if settings.mock_mode:
-        return _read_fixture()
+        has_demo_claim = "I have led platform teams" in request.cover_letter.paragraphs[0].prose
+        return _read_fixture(CRITIQUE_INITIAL_FIXTURE_PATH if has_demo_claim else CRITIQUE_FIXTURE_PATH)
 
     if not settings.anthropic_api_key:
         raise CritiqueError("Live mode requires an Anthropic API key.")
