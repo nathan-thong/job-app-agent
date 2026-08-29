@@ -4,6 +4,10 @@ import type {
   ExtractionResponse,
   GapAnalysisRequest,
   GapAnalysisResponse,
+  CritiqueRequest,
+  CritiqueResponse,
+  DraftRequest,
+  DraftResponse,
 } from "./types";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
@@ -84,6 +88,25 @@ export function gapAnalysis(
   signal?: AbortSignal,
 ): Promise<GapAnalysisResponse> {
   return request<GapAnalysisResponse>("/gap-analysis", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    signal,
+  });
+}
+
+export function draft(payload: DraftRequest, signal?: AbortSignal): Promise<DraftResponse> {
+  return request<DraftResponse>("/draft", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    signal,
+  });
+}
+
+export function critique(
+  payload: CritiqueRequest,
+  signal?: AbortSignal,
+): Promise<CritiqueResponse> {
+  return request<CritiqueResponse>("/critique", {
     method: "POST",
     body: JSON.stringify(payload),
     signal,

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 
 import { ApiError, getConfig } from "./api";
+import { CoverLetterView } from "./CoverLetterView";
+import { FindingsView } from "./FindingsView";
 import { GapAnalysisView } from "./GapAnalysisView";
 import { ExtractionView } from "./ExtractionView";
 import { JobPostingInput } from "./JobPostingInput";
@@ -55,7 +57,7 @@ function App() {
     );
   }
 
-  const isBusy = pipeline.state === "extracting" || pipeline.state === "analyzing";
+  const isBusy = ["extracting", "analyzing", "drafting", "critiquing", "revising"].includes(pipeline.state);
   const canRun = posting.length >= 50 && posting.length <= 8000 && !isBusy;
   const extractionStageState =
     pipeline.state === "extracting"
@@ -73,6 +75,26 @@ function App() {
       : pipeline.errorStage === "gap-analysis"
         ? "error"
         : pipeline.gapAnalysis
+          ? "complete"
+          : pipeline.state === "cancelled"
+            ? "error"
+            : "idle";
+  const draftStageState =
+    pipeline.state === "drafting" || pipeline.state === "revising"
+      ? "active"
+      : pipeline.errorStage === "draft"
+        ? "error"
+        : pipeline.draft
+          ? "complete"
+          : pipeline.state === "cancelled"
+            ? "error"
+            : "idle";
+  const critiqueStageState =
+    pipeline.state === "critiquing"
+      ? "active"
+      : pipeline.errorStage === "critique"
+        ? "error"
+        : pipeline.critique
           ? "complete"
           : pipeline.state === "cancelled"
             ? "error"
@@ -105,7 +127,15 @@ function App() {
             <JobPostingInput value={posting} readOnly={config.mock_mode} onChange={setPosting} />
             <div className="action-row">
               <button className="button button--primary" disabled={!canRun} onClick={() => pipeline.run(posting)}>
-                {pipeline.state === "analyzing" ? "Analyzing…" : isBusy ? "Extracting…" : "Run two stages"}
+                {pipeline.state === "analyzing"
+                  ? "Analyzing…"
+                  : pipeline.state === "drafting" || pipeline.state === "revising"
+                    ? "Drafting…"
+                    : pipeline.state === "critiquing"
+                      ? "Critiquing…"
+                      : isBusy
+                        ? "Working…"
+                        : "Generate Cover Letter"}
                 {!isBusy ? <span aria-hidden="true">↗</span> : null}
               </button>
               {isBusy ? (
@@ -123,8 +153,12 @@ function App() {
             <PipelineStage number="02" title="Gap Analysis" state={gapStageState}>
               <p className="future-stage-description">Compare each Requirement with Jordan Ellis’s trusted Profile and keep direct Matches distinct from Adjacent evidence.</p>
             </PipelineStage>
-            <PipelineStage number="03" title="Draft" state="idle" />
-            <PipelineStage number="04" title="Critique" state="idle" />
+            <PipelineStage number="03" title="Draft" state={draftStageState}>
+              <p className="future-stage-description">Build a three or four paragraph Cover Letter from verified Requirement and Profile Evidence provenance.</p>
+            </PipelineStage>
+            <PipelineStage number="04" title="Critique" state={critiqueStageState}>
+              <p className="future-stage-description">Check grounding and writing quality, revising only when a blocking Finding remains.</p>
+            </PipelineStage>
           </div>
         </div>
 
@@ -157,6 +191,23 @@ function App() {
                 <span className="count-pill">{pipeline.gapAnalysis.assessments.length} assessed</span>
               </div>
               <GapAnalysisView response={pipeline.gapAnalysis} />
+            </div>
+          ) : null}
+          {pipeline.draft ? (
+            <div className="output-card letter-card">
+              <div className="output-card-header">
+                <div>
+                  <p className="eyebrow">Generated artifact</p>
+                  <h2>Cover Letter</h2>
+                </div>
+                {pipeline.revisionCount > 0 ? <span className="count-pill">Revision {pipeline.revisionCount} / 2</span> : null}
+              </div>
+              <CoverLetterView letter={pipeline.draft} />
+            </div>
+          ) : null}
+          {pipeline.critique ? (
+            <div className="output-card critique-card">
+              <FindingsView response={pipeline.critique} capped={pipeline.state === "capped"} />
             </div>
           ) : null}
           <p className="privacy-note"><span aria-hidden="true">◌</span> Mock mode makes zero external model calls. Your Job Posting stays local to this demo.</p>
