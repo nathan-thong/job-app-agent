@@ -1,4 +1,10 @@
-import type { AppConfig, ExtractionRequest, ExtractionResponse } from "./types";
+import type {
+  AppConfig,
+  ExtractionRequest,
+  ExtractionResponse,
+  GapAnalysisRequest,
+  GapAnalysisResponse,
+} from "./types";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -67,6 +73,17 @@ export function extract(
   signal?: AbortSignal,
 ): Promise<ExtractionResponse> {
   return request<ExtractionResponse>("/extract", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    signal,
+  });
+}
+
+export function gapAnalysis(
+  payload: GapAnalysisRequest,
+  signal?: AbortSignal,
+): Promise<GapAnalysisResponse> {
+  return request<GapAnalysisResponse>("/gap-analysis", {
     method: "POST",
     body: JSON.stringify(payload),
     signal,

@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 
 import { ApiError, getConfig } from "./api";
+import { GapAnalysisView } from "./GapAnalysisView";
 import { ExtractionView } from "./ExtractionView";
 import { JobPostingInput } from "./JobPostingInput";
 import { PipelineStage } from "./PipelineStage";
-import { useExtraction } from "./useExtraction";
+import { usePipeline } from "./usePipeline";
 import type { AppConfig } from "./types";
 
 function App() {
   const [config, setConfig] = useState<AppConfig | null>(null);
   const [configError, setConfigError] = useState<ApiError | null>(null);
   const [posting, setPosting] = useState("");
-  const extraction = useExtraction();
+  const pipeline = usePipeline();
 
   useEffect(() => {
     const controller = new AbortController();
@@ -54,16 +55,28 @@ function App() {
     );
   }
 
-  const isBusy = extraction.state === "extracting";
+  const isBusy = pipeline.state === "extracting" || pipeline.state === "analyzing";
   const canRun = posting.length >= 50 && posting.length <= 8000 && !isBusy;
-  const stageState =
-    extraction.state === "extracting"
+  const extractionStageState =
+    pipeline.state === "extracting"
       ? "active"
-      : extraction.state === "complete"
+      : pipeline.errorStage === "extraction"
+        ? "error"
+        : pipeline.extraction
         ? "complete"
-        : extraction.state === "error" || extraction.state === "cancelled"
+        : pipeline.state === "cancelled"
           ? "error"
           : "idle";
+  const gapStageState =
+    pipeline.state === "analyzing"
+      ? "active"
+      : pipeline.errorStage === "gap-analysis"
+        ? "error"
+        : pipeline.gapAnalysis
+          ? "complete"
+          : pipeline.state === "cancelled"
+            ? "error"
+            : "idle";
 
   return (
     <main className="shell">
@@ -86,28 +99,30 @@ function App() {
 
       <div className="workflow-grid">
         <div className="input-column">
-          <PipelineStage number="01" title="Extraction" state={stageState}>
+          <PipelineStage number="01" title="Extraction" state={extractionStageState}>
             <p className="stage-description">Identify the role, company, and Requirements exactly as they appear in the Job Posting.</p>
             {config.mock_mode ? <div className="demo-note">Mock mode · the canonical sample is prefilled and read-only.</div> : null}
             <JobPostingInput value={posting} readOnly={config.mock_mode} onChange={setPosting} />
             <div className="action-row">
-              <button className="button button--primary" disabled={!canRun} onClick={() => extraction.run(posting)}>
-                {isBusy ? "Extracting…" : "Run Extraction"}
+              <button className="button button--primary" disabled={!canRun} onClick={() => pipeline.run(posting)}>
+                {pipeline.state === "analyzing" ? "Analyzing…" : isBusy ? "Extracting…" : "Run two stages"}
                 {!isBusy ? <span aria-hidden="true">↗</span> : null}
               </button>
               {isBusy ? (
-                <button className="button button--ghost" onClick={extraction.cancel}>
+                <button className="button button--ghost" onClick={pipeline.cancel}>
                   Cancel
                 </button>
               ) : null}
             </div>
             {posting.length > 0 && posting.length < 50 ? <p className="validation-copy">Add at least {50 - posting.length} more characters to run Extraction.</p> : null}
-            {extraction.state === "cancelled" ? <p className="cancelled-copy">Extraction cancelled. No later stages were scheduled.</p> : null}
-            {extraction.error ? <p className="error-copy">{extraction.error.message}</p> : null}
+            {pipeline.state === "cancelled" ? <p className="cancelled-copy">Pipeline cancelled. Completed stages are preserved and no later stages were scheduled.</p> : null}
+            {pipeline.error ? <p className="error-copy">{pipeline.error.message}</p> : null}
           </PipelineStage>
 
           <div className="future-stages" aria-label="Upcoming pipeline stages">
-            <PipelineStage number="02" title="Gap Analysis" state="idle" />
+            <PipelineStage number="02" title="Gap Analysis" state={gapStageState}>
+              <p className="future-stage-description">Compare each Requirement with Jordan Ellis’s trusted Profile and keep direct Matches distinct from Adjacent evidence.</p>
+            </PipelineStage>
             <PipelineStage number="03" title="Draft" state="idle" />
             <PipelineStage number="04" title="Critique" state="idle" />
           </div>
@@ -120,10 +135,10 @@ function App() {
                 <p className="eyebrow">Stage output</p>
                 <h2>Requirements</h2>
               </div>
-              {extraction.response ? <span className="count-pill">{extraction.response.requirements.length} found</span> : null}
+              {pipeline.extraction ? <span className="count-pill">{pipeline.extraction.requirements.length} found</span> : null}
             </div>
-            {extraction.response ? (
-              <ExtractionView response={extraction.response} />
+            {pipeline.extraction ? (
+              <ExtractionView response={pipeline.extraction} />
             ) : (
               <div className="empty-output">
                 <div className="empty-icon" aria-hidden="true">◎</div>
@@ -132,6 +147,18 @@ function App() {
               </div>
             )}
           </div>
+          {pipeline.gapAnalysis ? (
+            <div className="output-card analysis-card">
+              <div className="output-card-header">
+                <div>
+                  <p className="eyebrow">Stage output</p>
+                  <h2>Gap Analysis</h2>
+                </div>
+                <span className="count-pill">{pipeline.gapAnalysis.assessments.length} assessed</span>
+              </div>
+              <GapAnalysisView response={pipeline.gapAnalysis} />
+            </div>
+          ) : null}
           <p className="privacy-note"><span aria-hidden="true">◌</span> Mock mode makes zero external model calls. Your Job Posting stays local to this demo.</p>
         </aside>
       </div>
