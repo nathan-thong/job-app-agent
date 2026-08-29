@@ -21,11 +21,12 @@ read-only, and puts a notice above it. The honest pitch is that this is the pipe
 running on a sample posting, and you can clone it and add a key to run your own. That's
 exactly what's happening.
 
-Both the sample text and the mock-mode flag reach the frontend through one endpoint,
-`GET /config`, returning `{mock_mode, sample_posting}`, fetched once on mount. Without it
+The sample text, mock-mode flag, and active Profile name reach the frontend through one
+endpoint, `GET /config`, returning `{mock_mode, sample_posting, profile_name}`, fetched once on mount. Without it
 the sample would have to be duplicated into a frontend constant, where it would drift
 from the file the fixture was drawn from. `sample_posting` comes back `None` when mock
-mode is off, so a live deployment never ships the text.
+mode is off, so a live deployment never ships the text. `profile_name` is always present
+so the UI can identify the fixed candidate without exposing the complete Profile.
 
 ## Rejected
 
@@ -64,3 +65,7 @@ The test that runs the sample through with the canonical fixture isn't a happy-p
 test. It's what pins the fixture to the sample. Edit `sample_posting.txt` without updating
 the fixture and it fails straight away, and that's the only thing keeping the demo from
 degrading quietly over time.
+
+Mock-mode startup also loads the canonical pair and runs the same fidelity check, failing
+fast on any unexpected drop or drift rather than serving a broken demo. Live mode does
+not require or expose the sample files.

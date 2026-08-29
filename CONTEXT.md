@@ -1,39 +1,73 @@
-# Context
+# Job Application Tailoring Context
 
-The domain language this project uses. These are the canonical names. Code, prompts,
-and schemas should use them and nothing else.
+The shared language for turning one Job Posting and one Profile into a grounded Cover Letter.
 
-## Job Posting
+## Language
 
-The raw text a user pastes in. One employer's advertisement for one role. Untrusted
-input, always treated as data and never as instructions.
+**Job Posting**:
+One employer's advertisement for one role. It is untrusted input and always treated as data.
+_Avoid_: Job description, listing, ad
 
-## Requirement
+**Requirement**:
+One thing a Job Posting asks of a candidate, represented by verbatim evidence and a Necessity judgment.
+_Avoid_: Criterion, qualification, extracted item
 
-A single thing a Job Posting asks of a candidate. The Extraction stage produces these
-and the Gap Analysis stage consumes them.
+**Necessity**:
+How strongly a Job Posting demands a Requirement: `required`, `preferred`, or `unstated`.
+_Avoid_: Priority, importance, requirement level
 
-A Requirement holds two things, kept in separate fields:
+**Profile**:
+The trusted, structured background of the candidate whose Cover Letter is being produced.
+_Avoid_: Resume, CV, candidate data
 
-- **Evidence.** The wording copied out of the Job Posting, word for word, not
-  rewritten. Copying matters because it can be checked. A paraphrase the model
-  invented reads the same as one it extracted. Copying also keeps the employer's own
-  vocabulary available to the drafting stage, which is the vocabulary that counts when
-  you're tailoring an application.
-- **Judgment.** The model's reading of how necessary that evidence is.
+**Profile Evidence**:
+Wording copied verbatim from the Profile's `summary`, `skills`, `experience`, `projects`, or `education` section.
+_Avoid_: Supporting claim, proof, evidence summary
 
-## Necessity
+**Requirement Assessment**:
+The Gap Analysis result for one embedded Requirement, with one outcome, a reason, and any Profile Evidence.
+_Avoid_: Score, fit rating
 
-How strongly a Job Posting demands a Requirement: `required`, `preferred`, or
-`unstated`. This is judgment, not evidence. Postings signal it inconsistently, with
-"must have", "a plus", or nothing at all, so it's inferred rather than copied.
+**Match**:
+A Requirement Assessment whose Profile Evidence directly supports the Requirement.
+_Avoid_: Full match, covered requirement
 
-`unstated` exists to keep the model's uncertainty visible. A two-value field forces a
-guess, and a guess recorded as `required` reads the same as a stated "must have". The
-third value also lets Gap Analysis decide how softly to treat an unstated Requirement,
-instead of that policy being fixed in Extraction where it can't be changed.
+**Adjacent**:
+A Requirement Assessment with credible transferable Profile Evidence that does not directly satisfy the Requirement.
+_Avoid_: Partial match, weak match, near match
 
-## Profile
+**Gap**:
+A Requirement Assessment with no useful supporting Profile Evidence.
+_Avoid_: Weakness, deficiency, missing skill
 
-The candidate's background. The fixed side of the comparison. Unlike a Job Posting it's
-trusted, structured, and not supplied per run.
+**Cover Letter**:
+The single application artifact produced by v1 for one Job Posting, using only claims supported by the Profile.
+_Avoid_: Application draft, final output, application bundle
+
+**Cover Letter Paragraph**:
+One paragraph of a Cover Letter together with the Requirements it addresses and its Profile Evidence provenance.
+_Avoid_: Content block, generated section
+
+**Critique Finding**:
+One canonical problem or improvement identified in a Cover Letter, with a code, severity, optional paragraph number, and message.
+_Avoid_: Feedback item, issue, suggestion
+
+**Blocking Finding**:
+A Critique Finding that must be fixed before the Cover Letter can pass. Its code is `unsupported_claim`, `adjacent_as_match`, `missing_role_specificity`, `forbidden_structure`, or `incoherent_prose`.
+_Avoid_: Error, fatal issue
+
+**Advisory Finding**:
+A Critique Finding that may remain when the Cover Letter passes. Its code is `word_count`, `repetition`, `weak_phrasing`, `generic_tone`, or `missed_opportunity`.
+_Avoid_: Warning, optional error
+
+**Critique Verdict**:
+The decision for one Cover Letter: `pass` when no Blocking Finding remains, otherwise `revise`.
+_Avoid_: Score, grade, approval
+
+**Pipeline Run**:
+One attempt to turn a Job Posting into a Cover Letter through all four stages and the capped revision loop.
+_Avoid_: Session, job, workflow
+
+**Edited Cover Letter**:
+A user-modified copy of a generated Cover Letter whose earlier Critique Verdict and provenance do not apply to the edits.
+_Avoid_: Revised Cover Letter, validated edit

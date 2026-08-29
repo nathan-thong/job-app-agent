@@ -58,10 +58,16 @@ touching hyphens inside words.
 
 ## Consequences
 
+Optional `job_title` and `company` values are checked against the Job Posting with the
+same representation-only rule and replaced with `None` when unverifiable. They are not
+exceptions to the source-grounding policy.
+
 Not every dropped span is a hallucination. A posting reading "experience with AWS
 (Lambda, RDS)" might produce "experience with AWS Lambda", which is a sensible way to
-split it up and still fails the substring test. A bare count can't tell that apart from
-a fabrication, so dropped spans get logged on the server rather than only counted.
+split it up and still fails the substring test. Default logs therefore record the stage,
+reason, count, request ID, and a hash of each rejected span without retaining posting
+content. Rejected text may be logged only in explicit local development with
+`LOG_LLM_CONTENT=true`, which defaults false and must never be enabled publicly.
 
 `dropped_count` isn't shown in the UI to start with. Telling a user that four
 requirements were discarded gives them nothing to act on and costs confidence for
