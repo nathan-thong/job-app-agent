@@ -12,7 +12,7 @@ V1 produces one tailored Cover Letter targeting 250–350 words in three or four
 
 The backend stages and local frontend workflow are implemented through the capped Draft/Critique loop. FastAPI exposes typed `/config`, `/extract`, `/gap-analysis`, `/draft`, and `/critique` routes; the React/TypeScript frontend owns sequencing and displays source-checked provenance. `backend/data/profile.json` contains a realistic fictional candidate named Jordan Ellis.
 
-The contracts and major decisions for all four stages, provenance, Critique gating, and frontend orchestration are documented and implemented in mock mode. Remaining work is browser acceptance, hardening, and one explicitly authorized live calibration run.
+The contracts and major decisions for all four stages, provenance, Critique gating, frontend orchestration, and core hardening are documented and implemented in mock mode. Remaining work is manual browser acceptance and one explicitly authorized live calibration run.
 
 Agents and contributors should read [AGENTS.md](AGENTS.md), [CONTEXT.md](CONTEXT.md), and the relevant files in [docs/adr/](docs/adr/) before editing.
 

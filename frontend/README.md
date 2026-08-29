@@ -1,32 +1,41 @@
-# React + TypeScript + Vite
+# Job App Agent frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+This React and TypeScript frontend presents the local Job App Agent Pipeline Run:
 
-Currently, two official plugins are available:
+`Extraction -> Gap Analysis -> Draft <-> Critique (capped)`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+The frontend owns stage sequencing, progress states, cancellation, failed-stage retry, and the two-revision cap. It receives the fictional Jordan Ellis Profile name and the canonical sample Job Posting from the backend's `GET /config` endpoint. In mock mode the sample is prefilled and read-only, and the pipeline makes no external model calls.
 
-## React Compiler
+## Local development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Install dependencies from the repository root:
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm ci --prefix frontend
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Start the backend first, then run the frontend:
+
+```bash
+cd backend
+.venv/bin/uvicorn app.main:app --reload --port 8000
+```
+
+In another terminal from the repository root:
+
+```bash
+npm run dev --prefix frontend
+```
+
+The frontend defaults to `http://localhost:8000` for the backend. Set `VITE_API_BASE_URL` before starting Vite when using another local API origin.
+
+## Verification
+
+```bash
+npm run lint --prefix frontend
+npm run build --prefix frontend
+```
+
+The production build uses TypeScript project checking followed by Vite. The interface renders Job Posting text and model output as text, keeps Profile Evidence collapsed until requested, and supports editing only after a generated Cover Letter reaches `passed` or `capped`.
+
+Manual browser acceptance remains a separate release check for the complete mock flow, cancellation, retry, cap, editing, reset, and copy behavior.
