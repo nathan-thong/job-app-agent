@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import type { DraftResponse } from "./types";
 import { formatLetter } from "./letter";
 
@@ -21,6 +23,20 @@ export function CoverLetterView({
   onReset,
 }: CoverLetterViewProps) {
   const visibleText = editedText ?? formatLetter(letter);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "unavailable">("idle");
+
+  const copyVisibleLetter = async () => {
+    if (!navigator.clipboard) {
+      setCopyStatus("unavailable");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(visibleText);
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("unavailable");
+    }
+  };
 
   return (
     <div className="letter">
@@ -86,12 +102,16 @@ export function CoverLetterView({
               Reset to generated
             </button>
           ) : null}
-          <button
-            className="button button--secondary"
-            onClick={() => void navigator.clipboard?.writeText(visibleText)}
-          >
+          <button className="button button--secondary" onClick={() => void copyVisibleLetter()}>
             Copy visible letter
           </button>
+          <span className="copy-status" role="status" aria-live="polite">
+            {copyStatus === "copied"
+              ? "Copied to clipboard."
+              : copyStatus === "unavailable"
+                ? "Clipboard unavailable; select and copy the letter manually."
+                : null}
+          </span>
         </div>
       ) : null}
       {editedText ? (

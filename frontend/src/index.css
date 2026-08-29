@@ -546,6 +546,12 @@ textarea[readonly] {
   border-top: 1px solid var(--line);
 }
 
+.copy-status {
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 .edit-warning {
   margin: 12px 0 0;
   color: var(--orange);

@@ -18,7 +18,11 @@ const stateLabels: Record<PipelineStageState, string> = {
 
 export function PipelineStage({ number, title, state, children }: PipelineStageProps) {
   return (
-    <section className={`pipeline-stage pipeline-stage--${state}`} aria-labelledby={`stage-${number}`}>
+    <section
+      className={`pipeline-stage pipeline-stage--${state}`}
+      aria-labelledby={`stage-${number}`}
+      aria-busy={state === "active"}
+    >
       <div className="stage-marker" aria-hidden="true">
         {number}
       </div>
@@ -28,7 +32,9 @@ export function PipelineStage({ number, title, state, children }: PipelineStageP
             <p className="eyebrow">Stage {number}</p>
             <h2 id={`stage-${number}`}>{title}</h2>
           </div>
-          <span className="stage-status">{stateLabels[state]}</span>
+          <span className="stage-status" role="status" aria-live="polite">
+            {stateLabels[state]}
+          </span>
         </div>
         {children}
       </div>

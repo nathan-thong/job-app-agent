@@ -54,7 +54,7 @@ function App() {
       <main className="shell shell--centered">
         <p className="eyebrow">Job App Agent</p>
         <h1>Configuration unavailable</h1>
-        <p className="error-copy">{configError.message}</p>
+        <p className="error-copy" role="alert">{configError.message}</p>
         <button className="button button--secondary" onClick={() => window.location.reload()}>
           Try again
         </button>
@@ -165,9 +165,9 @@ function App() {
               ) : null}
             </div>
             {posting.length > 0 && posting.length < 50 ? <p className="validation-copy">Add at least {50 - posting.length} more characters to run Extraction.</p> : null}
-            {pipeline.state === "cancelled" ? <p className="cancelled-copy">Pipeline cancelled. Completed stages are preserved and no later stages were scheduled.</p> : null}
-            {pipeline.state === "error" ? <p className="field-note">Retry resumes at the failed stage and keeps completed stage results.</p> : null}
-            {pipeline.error ? <p className="error-copy">{pipeline.error.message}</p> : null}
+            {pipeline.state === "cancelled" ? <p className="cancelled-copy" role="status">Pipeline cancelled. Completed stages are preserved and no later stages were scheduled.</p> : null}
+            {pipeline.state === "error" ? <p className="field-note" role="status">Retry resumes at the failed stage and keeps completed stage results.</p> : null}
+            {pipeline.error ? <p className="error-copy" role="alert">{pipeline.error.message}</p> : null}
           </PipelineStage>
 
           <div className="future-stages" aria-label="Upcoming pipeline stages">
