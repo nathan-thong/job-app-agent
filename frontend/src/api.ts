@@ -52,11 +52,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       );
     }
     if (response.status === 422) {
-      throw new ApiError(
-        "The Job Posting must be between 50 and 8,000 characters.",
-        "validation",
-        response.status,
-      );
+      const message = path === "/extract"
+        ? "The Job Posting must be between 50 and 8,000 characters."
+        : "The request for this stage was not valid. Restart from Extraction if the Job Posting changed.";
+      throw new ApiError(message, "validation", response.status);
     }
     throw new ApiError(
       "The backend could not complete this stage. You can retry it.",
