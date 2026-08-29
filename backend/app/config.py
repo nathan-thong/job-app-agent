@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     anthropic_api_key: str = ""
     model_name: str = "claude-haiku-4-5"
     mock_mode: bool = True
+    rate_limit: str = "40/hour"
+    log_llm_content: bool = False
 
 
 settings = Settings()

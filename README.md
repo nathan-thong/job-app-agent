@@ -10,9 +10,9 @@ V1 produces one tailored Cover Letter targeting 250–350 words in three or four
 
 ## Status
 
-The backend and frontend scaffolds are complete. FastAPI exposes `/health`, the React/TypeScript frontend confirms the round trip, and `backend/data/profile.json` contains a realistic fictional candidate named Jordan Ellis.
+The backend scaffold and pure Extraction slice are complete. FastAPI exposes `/health`, typed `/config`, and mock/live `/extract` routes; the React/TypeScript frontend still confirms only the original health round trip. `backend/data/profile.json` contains a realistic fictional candidate named Jordan Ellis.
 
-The contracts and major decisions for all four stages, provenance, Critique gating, and frontend orchestration are documented, but no pipeline endpoint has been implemented yet. The next step remains the pure Extraction slice described as 3b in [PLAN.md](PLAN.md).
+The contracts and major decisions for all four stages, provenance, Critique gating, and frontend orchestration are documented. Extraction 3b and 3c are implemented; the next step is the Extraction frontend slice described as 3d in [PLAN.md](PLAN.md).
 
 Agents and contributors should read [AGENTS.md](AGENTS.md), [CONTEXT.md](CONTEXT.md), and the relevant files in [docs/adr/](docs/adr/) before editing.
 
@@ -38,7 +38,7 @@ Extraction separates evidence from judgment. A Requirement contains a verbatim s
 
 After parsing model output, the agent drops any Requirement whose normalized span cannot be found in the exact posting string sent to the model. Optional job-title and company values are checked the same way and become absent when unverifiable. Normalization changes representation only, such as whitespace, quotes, dash style, bullets, and trailing punctuation. It never uses fuzzy matching. See [ADR-0001](docs/adr/0001-verbatim-requirement-spans.md).
 
-Mock mode uses a canonical backend-owned sample posting with fixture spans drawn from it. `GET /config` will supply that posting to the frontend, where it is prefilled and read-only. The fixture therefore exercises the same fidelity checks as live output instead of bypassing them. See [ADR-0002](docs/adr/0002-sample-posting-served-by-backend.md).
+Mock mode uses a canonical backend-owned sample posting with fixture spans drawn from it. `GET /config` supplies that posting to the frontend, where it will be prefilled and read-only. The fixture exercises the same fidelity checks as live output instead of bypassing them. See [ADR-0002](docs/adr/0002-sample-posting-served-by-backend.md).
 
 ## Cost and security controls
 

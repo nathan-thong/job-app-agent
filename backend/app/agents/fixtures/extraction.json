@@ -1,0 +1,34 @@
+{
+  "job_title": "Senior Backend Engineer",
+  "company": "Harbor & Pine",
+  "requirements": [
+    {
+      "text": "3–5 years of experience building production APIs with Python",
+      "necessity": "required"
+    },
+    {
+      "text": "Strong written and verbal communication skills",
+      "necessity": "required"
+    },
+    {
+      "text": "Experience with AWS (Lambda, RDS, S3)",
+      "necessity": "required"
+    },
+    {
+      "text": "Experience with e-commerce platforms.",
+      "necessity": "required"
+    },
+    {
+      "text": "Familiarity with Kubernetes",
+      "necessity": "preferred"
+    },
+    {
+      "text": "Experience designing GraphQL APIs",
+      "necessity": "preferred"
+    },
+    {
+      "text": "A thoughtful, customer-focused approach to solving problems",
+      "necessity": "unstated"
+    }
+  ]
+}

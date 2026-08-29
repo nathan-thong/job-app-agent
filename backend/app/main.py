@@ -1,7 +1,29 @@
-from fastapi import FastAPI
+from uuid import uuid4
+
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
+
+from app.agents.extraction import (
+    ExtractionError,
+    _read_sample_posting,
+    extract,
+    validate_mock_fixture,
+)
+from app.config import settings
+from app.models.config import ConfigResponse, HealthResponse
+from app.models.extraction import ExtractionRequest, ExtractionResponse
+from app.profile import load_profile
+from app.rate_limit import SharedRateLimiter, enforce_rate_limit
 
 app = FastAPI(title="Job App Agent")
+
+app.state.profile = load_profile()
+app.state.sample_posting = None
+if settings.mock_mode:
+    validate_mock_fixture()
+    app.state.sample_posting = _read_sample_posting()
+app.state.rate_limiter = SharedRateLimiter(settings.rate_limit)
 
 app.add_middleware(
     CORSMiddleware,
@@ -12,5 +34,35 @@ app.add_middleware(
 
 
 @app.get("/health")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
+def health() -> HealthResponse:
+    return HealthResponse(status="ok")
+
+
+@app.middleware("http")
+async def add_request_id(request: Request, call_next) -> Response:
+    request_id = request.headers.get("X-Request-ID") or str(uuid4())
+    request.state.request_id = request_id
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
+@app.get("/config", response_model=ConfigResponse)
+def config() -> ConfigResponse:
+    return ConfigResponse(
+        mock_mode=settings.mock_mode,
+        sample_posting=app.state.sample_posting,
+        profile_name=app.state.profile.name,
+    )
+
+
+@app.post(
+    "/extract",
+    response_model=ExtractionResponse,
+    dependencies=[Depends(enforce_rate_limit)],
+)
+def extraction(extraction_request: ExtractionRequest, request: Request) -> ExtractionResponse:
+    try:
+        return extract(extraction_request, request_id=request.state.request_id)
+    except ExtractionError as exc:
+        raise HTTPException(status_code=502, detail="Extraction could not be completed.") from exc
